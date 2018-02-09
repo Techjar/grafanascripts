@@ -14,7 +14,6 @@ def update_profit(name, sat_per_hash, nethash, difficulty, block_reward):
 	print(name, sat_per_hash, nethash, difficulty, block_reward)
 
 def update_profit_cryptonight(name, id):
-	global whattomine_data
 	sats = (1 / whattomine_data[id]['difficulty']) * whattomine_data[id]['block_reward']
 	update_profit(name, sats, float(whattomine_data[id]['nethash']), float(whattomine_data[id]['difficulty']), float(whattomine_data[id]['block_reward']))
 

@@ -5,6 +5,7 @@ import config as cfg
 
 client = InfluxDBClient(host='localhost', port=8086)
 times = {}
+global_data = {}
 
 def get_info_cmc(id):
 	response = requests.get("https://api.coinmarketcap.com/v1/ticker/" + id + "/?convert=" + cfg.fiat_currency)
@@ -24,6 +25,25 @@ def get_info_tradeogre(id):
 	response = requests.get("https://tradeogre.com/api/v1/ticker/BTC-" + id)
 	data = json.loads(response.text)
 	return {'price': float(data['price']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
+
+def get_info_stocksexchange(id):
+	for market in global_data['stocksexchange']:
+		if market['market_name'] == id + '_BTC':
+			return {'price': float(market['last']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
+	return {'price': 0.0, 'market_cap': 0.0}
+
+def update_stocksexchange():
+	try:
+		if 'stocksexchange' in times and time.perf_counter() - times['stocksexchange'] < 120:
+                        return
+		times['stocksexchange'] = time.perf_counter()
+		response = requests.get("https://stocks.exchange/api2/ticker")
+		global_data['stocksexchange'] = json.loads(response.text)
+	except KeyboardInterrupt:
+		raise
+	except:
+		print('Error updating stocksexchange')
+		traceback.print_exc()
 
 def update_value(name, price_id, info_function, interval):
 	try:
@@ -50,6 +70,7 @@ def update_value(name, price_id, info_function, interval):
 		traceback.print_exc()
 
 while True:
+	update_stocksexchange()
 	update_value('xmr', 'monero', get_info_cmc, 150)
 	update_value('etn', 'electroneum', get_info_cmc, 150)
 	update_value('eth', 'ethereum', get_info_cmc, 150)
@@ -64,5 +85,6 @@ while True:
 	update_value('trtl', 'TRTL', get_info_tradeogre, 30)
 	update_value('jnt', 'jibrel-network', get_info_cmc, 150)
 	update_value('krb', 'karbowanec', get_info_cmc, 150)
+	update_value('dero', 'DERO', get_info_stocksexchange, 60)
 
 	time.sleep(1)
