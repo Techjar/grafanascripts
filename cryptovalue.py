@@ -63,5 +63,6 @@ while True:
 	update_value('ltc', 'litecoin', get_info_cmc, 150)
 	update_value('trtl', 'TRTL', get_info_tradeogre, 30)
 	update_value('jnt', 'jibrel-network', get_info_cmc, 150)
+	update_value('krb', 'karbowanec', get_info_cmc, 150)
 
 	time.sleep(1)

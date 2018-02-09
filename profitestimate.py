@@ -37,6 +37,7 @@ while True:
 	update_value('itns', False)
 	update_value('msr', False)
 	update_value('trtl', False)
+	update_value('krb', False)
 
 	time.sleep(5)
 
