@@ -9,7 +9,8 @@ times = {}
 def get_info_cmc(id):
 	response = requests.get("https://api.coinmarketcap.com/v1/ticker/" + id + "/?convert=" + fiat_currency)
 	data = json.loads(response.text)[0]
-	return {'price': float(data['price_' + fiat_currency.lower()]), 'market_cap': float(data['market_cap_' + fiat_currency.lower()])}
+	market_cap = data['market_cap_' + fiat_currency.lower()]
+	return {'price': float(data['price_' + fiat_currency.lower()]), 'market_cap': float(market_cap if market_cap is not None else 0)}
 
 def get_info_southxchange(id):
 	response = requests.get("http://www.southxchange.com/api/prices")
@@ -61,5 +62,6 @@ while True:
 	update_value('btc', 'bitcoin', get_info_cmc, 150)
 	update_value('ltc', 'litecoin', get_info_cmc, 150)
 	update_value('trtl', 'TRTL', get_info_tradeogre, 30)
+	update_value('jnt', 'jibrel-network', get_info_cmc, 150)
 
 	time.sleep(1)
