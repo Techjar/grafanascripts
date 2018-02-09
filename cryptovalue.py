@@ -1,16 +1,16 @@
 #!/usr/bin/python3
 import requests, json, datetime, time, traceback
 from influxdb import InfluxDBClient
+import config as cfg
 
 client = InfluxDBClient(host='localhost', port=8086)
-fiat_currency = "USD"
 times = {}
 
 def get_info_cmc(id):
-	response = requests.get("https://api.coinmarketcap.com/v1/ticker/" + id + "/?convert=" + fiat_currency)
+	response = requests.get("https://api.coinmarketcap.com/v1/ticker/" + id + "/?convert=" + cfg.fiat_currency)
 	data = json.loads(response.text)[0]
-	market_cap = data['market_cap_' + fiat_currency.lower()]
-	return {'price': float(data['price_' + fiat_currency.lower()]), 'market_cap': float(market_cap if market_cap is not None else 0)}
+	market_cap = data['market_cap_' + cfg.fiat_currency.lower()]
+	return {'price': float(data['price_' + cfg.fiat_currency.lower()]), 'market_cap': float(market_cap if market_cap is not None else 0)}
 
 def get_info_southxchange(id):
 	response = requests.get("http://www.southxchange.com/api/prices")
