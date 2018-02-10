@@ -38,6 +38,7 @@ while True:
 	update_value('msr', False)
 	update_value('trtl', False)
 	update_value('krb', False)
+	update_value('dero', False)
 
 	time.sleep(5)
 
