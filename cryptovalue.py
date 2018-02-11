@@ -38,7 +38,7 @@ def get_info_stocksexchange(id):
 def update_stocksexchange():
 	try:
 		if 'stocksexchange' in times and time.perf_counter() - times['stocksexchange'] < 120:
-                        return
+			return
 		times['stocksexchange'] = time.perf_counter()
 		response = requests.get("https://stocks.exchange/api2/ticker")
 		global_data['stocksexchange'] = json.loads(response.text)

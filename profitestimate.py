@@ -14,9 +14,9 @@ def update_value(name, lite):
 	for miner in client.get_list_measurements():
 		client.switch_database(miner_db)
 		try:
-			hash = list(client.query('select hashrate from ' + miner['name'] + ' order by desc limit 1').get_points())[0]
+			hashrate = list(client.query('select hashrate from ' + miner['name'] + ' order by desc limit 1').get_points())[0]['hashrate']
 			client.switch_database('profitestimates')
-			sat_per_day = sat_per_hash * hash['hashrate'] * 86400
+			sat_per_day = sat_per_hash * hashrate * 86400
 			fiat_per_day = sat_per_day * price
 			print(miner['name'] + '_' + name, sat_per_day, fiat_per_day)
 			client.write_points([{'measurement': miner['name'] + '_' + name, 'fields': {'sat_per_hash': sat_per_hash, 'sat_per_day': sat_per_day, 'fiat_per_day': fiat_per_day}}])
