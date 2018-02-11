@@ -7,6 +7,9 @@ client = InfluxDBClient(host='localhost', port=8086)
 times = {}
 global_data = {}
 
+def get_info_dummy(id):
+	return {'price': 0, 'market_cap': 0}
+
 def get_info_cmc(id):
 	response = requests.get("https://api.coinmarketcap.com/v1/ticker/" + id + "/?convert=" + cfg.fiat_currency)
 	data = json.loads(response.text)[0]
@@ -86,5 +89,7 @@ while True:
 	update_value('jnt', 'jibrel-network', get_info_cmc, 150)
 	update_value('krb', 'karbowanec', get_info_cmc, 150)
 	update_value('dero', 'DERO', get_info_stocksexchange, 60)
+	update_value('bbs', 'placeholder', get_info_dummy, 60)
+	update_value('xao', 'XAO', get_info_tradeogre, 30)
 
 	time.sleep(1)

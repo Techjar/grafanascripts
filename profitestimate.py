@@ -1,34 +1,30 @@
 #!/usr/bin/python3
-import requests, json, datetime, time
+import requests, json, datetime, time, traceback
 from influxdb import InfluxDBClient
 
 client = InfluxDBClient(host='localhost', port=8086)
 
 def update_value(name, lite):
+	miner_db = 'minerhash_lite' if lite else 'minerhash'
 	client.switch_database('cryptovalues')
-	values = list(client.query('select * from ' + name + ' order by desc limit 1').get_points())[0]
+	price = list(client.query('select price from ' + name + ' order by desc limit 1').get_points())[0]['price']
 	client.switch_database('coinprofit')
-	sat_per_hash = list(client.query('select * from ' + name + ' order by desc limit 1').get_points())[0]['sat_per_hash']
-	if lite:
-		client.switch_database('minerhash_lite')
-	else:
-		client.switch_database('minerhash')
+	sat_per_hash = list(client.query('select sat_per_hash from ' + name + ' order by desc limit 1').get_points())[0]['sat_per_hash']
+	client.switch_database(miner_db)
 	for miner in client.get_list_measurements():
-		if lite:
-			client.switch_database('minerhash_lite')
-		else:
-			client.switch_database('minerhash')
-		while True:
-			hash = list(client.query('select * from ' + miner['name'] + ' order by desc limit 1').get_points())[0]
-			# Work around unidentifed InfluxDB issue
-			if hash is None:
-				continue
+		client.switch_database(miner_db)
+		try:
+			hash = list(client.query('select hashrate from ' + miner['name'] + ' order by desc limit 1').get_points())[0]
 			client.switch_database('profitestimates')
 			sat_per_day = sat_per_hash * hash['hashrate'] * 86400
-			fiat_per_day = sat_per_day * values['price']
+			fiat_per_day = sat_per_day * price
 			print(miner['name'] + '_' + name, sat_per_day, fiat_per_day)
 			client.write_points([{'measurement': miner['name'] + '_' + name, 'fields': {'sat_per_hash': sat_per_hash, 'sat_per_day': sat_per_day, 'fiat_per_day': fiat_per_day}}])
-			break
+		except KeyboardInterrupt:
+			raise
+		except:
+			print('Error updating', miner['name'] + '_' + name)
+			traceback.print_exc()
 
 while True:
 	update_value('xmr', False)
@@ -39,6 +35,7 @@ while True:
 	update_value('trtl', False)
 	update_value('krb', False)
 	update_value('dero', False)
+	update_value('xao', False)
 
 	time.sleep(5)
 

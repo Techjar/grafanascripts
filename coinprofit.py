@@ -23,35 +23,11 @@ def update_profit_aeon():
 	sats = (1 / data['difficulty']) * data['block_reward']
 	update_profit('aeon', sats, float(data['nethash']), float(data['difficulty']), float(data['block_reward']))
 
-def update_profit_itns():
-	response = requests.get("https://pool.intensecoin.net/api/stats", verify=False)
-	data = json.loads(response.text)
-	sats = (1 / float(data['network']['difficulty'])) * (float(data['network']['reward']) / float(data['config']['denominationUnit']))
-	update_profit('itns', sats, float(data['network']['difficulty']) / float(data['config']['coinDifficultyTarget']), float(data['network']['difficulty']), float(data['network']['reward']))
-
-def update_profit_msr():  
-	response = requests.get("https://masari.superpools.net/api/stats")
+def update_profit_cnupool(name, pool_addr, https=True, https_verify=True):
+	response = requests.get(("https" if https else "http") + "://" + pool_addr + "/api/stats", verify=https_verify)
 	data = json.loads(response.text)
 	sats = (1 / float(data['network']['difficulty'])) * (float(data['network']['reward']) / float(data['config']['coinUnits']))
-	update_profit('msr', sats, float(data['network']['difficulty']) / float(data['config']['coinDifficultyTarget']), float(data['network']['difficulty']), float(data['network']['reward']))
-
-def update_profit_trtl():
-	response = requests.get("https://trtl.mine2gether.com/api/stats")
-	data = json.loads(response.text)
-	sats = (1 / float(data['network']['difficulty'])) * (float(data['network']['reward']) / float(data['config']['coinUnits']))
-	update_profit('trtl', sats, float(data['network']['difficulty']) / float(data['config']['coinDifficultyTarget']), float(data['network']['difficulty']), float(data['network']['reward']))
-
-def update_profit_dero():
-	response = requests.get("https://dero.miner.rocks/api/stats")
-	data = json.loads(response.text)
-	sats = (1 / float(data['network']['difficulty'])) * (float(data['network']['reward']) / float(data['config']['coinUnits']))
-	update_profit('dero', sats, float(data['network']['difficulty']) / float(data['config']['coinDifficultyTarget']), float(data['network']['difficulty']), float(data['network']['reward']))
-
-def update_profit_krb():
-	response = requests.get("https://krb.miner.rocks/api/stats")
-	data = json.loads(response.text)
-	sats = (1 / float(data['network']['difficulty'])) * (float(data['network']['reward']) / float(data['config']['coinUnits']))
-	update_profit('krb', sats, float(data['network']['difficulty']) / float(data['config']['coinDifficultyTarget']), float(data['network']['difficulty']), float(data['network']['reward']))
+	update_profit(name, sats, float(data['network']['difficulty']) / float(data['config']['coinDifficultyTarget']), float(data['network']['difficulty']), float(data['network']['reward']))
 
 def update_whattomine():
 	global whattomine_data
@@ -72,10 +48,11 @@ while True:
 	robust_call(lambda: update_profit_cryptonight('xmr', 'Monero'))
 	robust_call(lambda: update_profit_cryptonight('etn', 'Electroneum'))
 	robust_call(update_profit_aeon)
-	robust_call(update_profit_itns)
-	robust_call(update_profit_msr)
-	robust_call(update_profit_trtl)
-	robust_call(update_profit_dero)
-	robust_call(update_profit_krb)
+	robust_call(lambda: update_profit_cnupool('itns', 'pool.intensecoin.net', https_verify=False))
+	robust_call(lambda: update_profit_cnupool('msr', 'masari.superpools.net'))
+	robust_call(lambda: update_profit_cnupool('trtl', 'trtl.mine2gether.com'))
+	robust_call(lambda: update_profit_cnupool('dero', 'dero.miner.rocks'))
+	robust_call(lambda: update_profit_cnupool('krb', 'krb.miner.rocks'))
+	robust_call(lambda: update_profit_cnupool('xao', 'alloypool.com'))
 
 	time.sleep(60)
