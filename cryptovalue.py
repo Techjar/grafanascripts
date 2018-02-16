@@ -35,6 +35,11 @@ def get_info_stocksexchange(id):
 			return {'price': float(market['last']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
 	return {'price': 0.0, 'market_cap': 0.0}
 
+def get_info_crex24(id):
+	response = requests.get("https://api.crex24.com/CryptoExchangeService/BotPublic/ReturnTicker?request=[NamePairs=BTC_" + id + "]")
+	data = json.loads(response.text)['Tickers'][0]
+	return {'price': float(data['Last']), 'market_cap': 0.0}
+
 def update_stocksexchange():
 	try:
 		if 'stocksexchange' in times and time.perf_counter() - times['stocksexchange'] < 120:
