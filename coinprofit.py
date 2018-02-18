@@ -23,11 +23,11 @@ def update_profit_aeon():
 	sats = (1 / data['difficulty']) * data['block_reward']
 	update_profit('aeon', sats, float(data['nethash']), float(data['difficulty']), float(data['block_reward']))
 
-def update_profit_cnupool(name, pool_addr, https=True, https_verify=True):
-	response = requests.get(("https" if https else "http") + "://" + pool_addr + "/api/stats", verify=https_verify)
+def update_profit_cnupool(name, pool_addr, url="/api/stats", https=True, https_verify=True):
+	response = requests.get(("https" if https else "http") + "://" + pool_addr + url, verify=https_verify)
 	data = json.loads(response.text)
 	sats = (1 / float(data['network']['difficulty'])) * (float(data['network']['reward']) / float(data['config']['coinUnits']))
-	update_profit(name, sats, float(data['network']['difficulty']) / float(data['config']['coinDifficultyTarget']), float(data['network']['difficulty']), float(data['network']['reward']))
+	update_profit(name, sats, float(data['network']['difficulty']) / float(data['config']['coinDifficultyTarget']), float(data['network']['difficulty']), float(data['network']['reward']) / float(data['config']['coinUnits']))
 
 def update_whattomine():
 	global whattomine_data
@@ -54,5 +54,6 @@ while True:
 	robust_call(lambda: update_profit_cnupool('dero', 'dero.miner.rocks'))
 	robust_call(lambda: update_profit_cnupool('krb', 'krb.miner.rocks'))
 	robust_call(lambda: update_profit_cnupool('xao', 'alloypool.com'))
+	robust_call(lambda: update_profit_cnupool('bbs', 'bbs.pool.pilbeams.net:8111', url='/stats', https=False))
 
 	time.sleep(60)
