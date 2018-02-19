@@ -59,6 +59,7 @@ def update_value(name, price_id, info_function, interval):
 			return
 		times[name] = time.perf_counter()
 
+		print('Querying', name, 'balance...')
 		client.switch_database('cryptobalances')
 		result = list(client.query('select * from ' + name + ' order by desc limit 1').get_points())
 		balance = float(0)
@@ -66,9 +67,11 @@ def update_value(name, price_id, info_function, interval):
 			balance = float(result[0]['balance'])
 		client.switch_database('cryptovalues')
 
+		print('Getting', name, 'price...')
 		info = info_function(price_id)
 		value = balance * info['price']
 
+		print('Writing', name, 'to db')
 		client.write_points([{'measurement': name, 'fields': {'price': info['price'], 'balance': balance, 'value': value, 'market_cap': info['market_cap']}}])
 		print(name, info['price'], balance, value, info['market_cap'])
 	except KeyboardInterrupt:
