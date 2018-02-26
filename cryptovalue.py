@@ -1,7 +1,9 @@
 #!/usr/bin/python3
-import requests, json, datetime, time, traceback
+import requests, json, datetime, time, traceback, eventlet
 from influxdb import InfluxDBClient
 import config as cfg
+
+eventlet.monkey_patch()
 
 client = InfluxDBClient(host='localhost', port=8086)
 times = {}
@@ -11,13 +13,13 @@ def get_info_dummy(id):
 	return {'price': 0, 'market_cap': 0}
 
 def get_info_cmc(id):
-	response = requests.get("https://api.coinmarketcap.com/v1/ticker/" + id + "/?convert=" + cfg.fiat_currency, timeout=5)
+	response = requests.get("https://api.coinmarketcap.com/v1/ticker/" + id + "/?convert=" + cfg.fiat_currency, timeout=3)
 	data = json.loads(response.text)[0]
 	market_cap = data['market_cap_' + cfg.fiat_currency.lower()]
 	return {'price': float(data['price_' + cfg.fiat_currency.lower()]), 'market_cap': float(market_cap if market_cap is not None else 0)}
 
 def get_info_southxchange(id):
-	response = requests.get("http://www.southxchange.com/api/prices", timeout=5)
+	response = requests.get("http://www.southxchange.com/api/prices", timeout=3)
 	data = json.loads(response.text)
 	for market in data:
 		if market['Market'] == id + '/BTC':
@@ -25,7 +27,7 @@ def get_info_southxchange(id):
 	return {'price': 0.0, 'market_cap': 0.0}
 
 def get_info_tradeogre(id):
-	response = requests.get("https://tradeogre.com/api/v1/ticker/BTC-" + id, timeout=5)
+	response = requests.get("https://tradeogre.com/api/v1/ticker/BTC-" + id, timeout=3)
 	data = json.loads(response.text)
 	return {'price': float(data['price']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
 
@@ -36,7 +38,7 @@ def get_info_stocksexchange(id):
 	return {'price': 0.0, 'market_cap': 0.0}
 
 def get_info_crex24(id):
-	response = requests.get("https://api.crex24.com/CryptoExchangeService/BotPublic/ReturnTicker?request=[NamePairs=BTC_" + id + "]", timeout=5)
+	response = requests.get("https://api.crex24.com/CryptoExchangeService/BotPublic/ReturnTicker?request=[NamePairs=BTC_" + id + "]", timeout=3)
 	data = json.loads(response.text)['Tickers'][0]
 	return {'price': float(data['Last']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
 
@@ -45,7 +47,9 @@ def update_stocksexchange():
 		if 'stocksexchange' in times and time.perf_counter() - times['stocksexchange'] < 120:
 			return
 		times['stocksexchange'] = time.perf_counter()
-		response = requests.get("https://stocks.exchange/api2/ticker", timeout=5)
+		response = None
+		with eventlet.Timeout(10):
+			response = requests.get("https://stocks.exchange/api2/ticker", timeout=3)
 		global_data['stocksexchange'] = json.loads(response.text)
 	except KeyboardInterrupt:
 		raise
@@ -68,7 +72,9 @@ def update_value(name, price_id, info_function, interval):
 		client.switch_database('cryptovalues')
 
 		print('Getting', name, 'price...')
-		info = info_function(price_id)
+		info = None
+		with eventlet.Timeout(10):
+			info = info_function(price_id)
 		value = balance * info['price']
 
 		print('Writing', name, 'to db')

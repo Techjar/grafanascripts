@@ -1,7 +1,8 @@
 #!/usr/bin/python3
-import requests, json, datetime, time, traceback, urllib3
+import requests, json, datetime, time, traceback, urllib3, eventlet
 from influxdb import InfluxDBClient
 
+eventlet.monkey_patch()
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 client = InfluxDBClient(host='localhost', port=8086)
@@ -18,25 +19,26 @@ def update_profit_cryptonight(name, id):
 	update_profit(name, sats, float(whattomine_data[id]['nethash']), float(whattomine_data[id]['difficulty']), float(whattomine_data[id]['block_reward']))
 
 def update_profit_aeon():
-	response = requests.get("https://whattomine.com/coins/192.json", timeout=5)
+	response = requests.get("https://whattomine.com/coins/192.json", timeout=3)
 	data = json.loads(response.text)
 	sats = (1 / data['difficulty']) * data['block_reward']
 	update_profit('aeon', sats, float(data['nethash']), float(data['difficulty']), float(data['block_reward']))
 
 def update_profit_cnupool(name, pool_addr, url="/api/stats", https=True, https_verify=True):
-	response = requests.get(("https" if https else "http") + "://" + pool_addr + url, timeout=5, verify=https_verify)
+	response = requests.get(("https" if https else "http") + "://" + pool_addr + url, timeout=3, verify=https_verify)
 	data = json.loads(response.text)
 	sats = (1 / float(data['network']['difficulty'])) * (float(data['network']['reward']) / float(data['config']['coinUnits']))
 	update_profit(name, sats, float(data['network']['difficulty']) / float(data['config']['coinDifficultyTarget']), float(data['network']['difficulty']), float(data['network']['reward']) / float(data['config']['coinUnits']))
 
 def update_whattomine():
 	global whattomine_data
-	response = requests.get("https://whattomine.com/coins.json", timeout=5)
+	response = requests.get("https://whattomine.com/coins.json", timeout=3)
 	whattomine_data = json.loads(response.text)['coins']
 
 def robust_call(func):
 	try:
-		func()
+		with eventlet.Timeout(10):
+			func()
 	except KeyboardInterrupt:
 		raise
 	except:
