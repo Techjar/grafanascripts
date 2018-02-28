@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-import requests, json, datetime, time, traceback, eventlet
+import eventlet
+requests = eventlet.import_patched('requests.__init__')
+import json, datetime, time, traceback
 from influxdb import InfluxDBClient
 import config as cfg
-
-eventlet.monkey_patch()
 
 client = InfluxDBClient(host='localhost', port=8086)
 times = {}

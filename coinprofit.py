@@ -1,8 +1,10 @@
 #!/usr/bin/python3
-import requests, json, datetime, time, traceback, urllib3, eventlet
+import eventlet
+urllib3 = eventlet.import_patched('urllib3.__init__')
+requests = eventlet.import_patched('requests.__init__')
+import json, datetime, time, traceback
 from influxdb import InfluxDBClient
 
-eventlet.monkey_patch()
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 client = InfluxDBClient(host='localhost', port=8086)
