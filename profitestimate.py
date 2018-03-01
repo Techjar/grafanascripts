@@ -36,6 +36,7 @@ while True:
 	update_value('krb', False)
 	update_value('dero', False)
 	update_value('xao', False)
+	update_value('bbs', False)
 
 	time.sleep(5)
 
