@@ -10,7 +10,7 @@ times = {}
 global_data = {}
 
 def get_info_dummy(id):
-	return {'price': 0, 'market_cap': 0}
+	return {'price': 0.0, 'market_cap': 0.0}
 
 def get_info_cmc(id):
 	response = requests.get("https://api.coinmarketcap.com/v1/ticker/" + id + "/?convert=" + cfg.fiat_currency, timeout=3)
