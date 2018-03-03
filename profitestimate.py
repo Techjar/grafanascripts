@@ -9,7 +9,7 @@ def update_value(name, lite):
 	client.switch_database('cryptovalues')
 	price = list(client.query('select price from ' + name + ' order by desc limit 1').get_points())[0]['price']
 	client.switch_database('coinprofit')
-	sat_per_hash = list(client.query('select sat_per_hash from ' + name + ' order by desc limit 1').get_points())[0]['sat_per_hash']
+	sat_per_hash = float(list(client.query('select sat_per_hash from ' + name + ' order by desc limit 1').get_points())[0]['sat_per_hash'])
 	client.switch_database(miner_db)
 	for miner in client.get_list_measurements():
 		client.switch_database(miner_db)
