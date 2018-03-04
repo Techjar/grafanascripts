@@ -105,5 +105,6 @@ while True:
 	update_value('dero', 'DERO', get_info_stocksexchange, 60)
 	update_value('bbs', 'BBS', get_info_crex24, 60)
 	update_value('xao', 'XAO', get_info_tradeogre, 30)
+	update_value('grft', 'GRFT', get_info_tradeogre, 30)
 
 	time.sleep(1)
