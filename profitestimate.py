@@ -37,6 +37,7 @@ while True:
 	update_value('dero', False)
 	update_value('xao', False)
 	update_value('bbs', False)
+	update_value('grft', False)
 
 	time.sleep(5)
 

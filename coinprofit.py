@@ -59,5 +59,6 @@ while True:
 	robust_call(lambda: update_profit_cnupool('krb', 'krb.miner.rocks'))
 	robust_call(lambda: update_profit_cnupool('xao', 'alloypool.com'))
 	robust_call(lambda: update_profit_cnupool('bbs', 'bbs.pool.pilbeams.net:8111', url='/stats', https=False))
+	robust_call(lambda: update_profit_cnupool('grft', 'graft.poolisto.com'))
 
 	time.sleep(60)
