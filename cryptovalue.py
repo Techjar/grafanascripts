@@ -42,6 +42,11 @@ def get_info_crex24(id):
 	data = json.loads(response.text)['Tickers'][0]
 	return {'price': float(data['Last']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
 
+def get_info_kucoin(id):
+	response = requests.get("https://api.kucoin.com/v1/open/tick?symbol=" + id + "-BTC", timeout=3)
+	data = json.loads(response.text)['data']
+	return {'price': float(data['lastDealPrice']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
+
 def update_stocksexchange():
 	try:
 		if 'stocksexchange' in times and time.perf_counter() - times['stocksexchange'] < 120:
@@ -106,5 +111,6 @@ while True:
 	update_value('bbs', 'BBS', get_info_crex24, 60)
 	update_value('xao', 'XAO', get_info_tradeogre, 30)
 	update_value('grft', 'GRFT', get_info_tradeogre, 30)
+	update_value('btcp', 'BTCP', get_info_kucoin, 30)
 
 	time.sleep(1)
