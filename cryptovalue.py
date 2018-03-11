@@ -111,6 +111,8 @@ while True:
 	update_value('bbs', 'BBS', get_info_crex24, 60)
 	update_value('xao', 'XAO', get_info_tradeogre, 30)
 	update_value('grft', 'GRFT', get_info_tradeogre, 30)
-	update_value('btcp', 'bitcoin-private', get_info_cmc, 30)
+	update_value('btcp', 'bitcoin-private', get_info_cmc, 150)
+	update_value('storm', 'storm', get_info_cmc, 150)
+	update_value('utnp', 'universa', get_info_cmc, 150)
 
 	time.sleep(1)
