@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import requests, json, datetime, time, traceback
 from influxdb import InfluxDBClient
+import config as cfg
 
 client = InfluxDBClient(host='localhost', port=8086)
 
@@ -14,7 +15,8 @@ def update_value(name, lite):
 	for miner in client.get_list_measurements():
 		client.switch_database(miner_db)
 		try:
-			hashrate = list(client.query('select hashrate from ' + miner['name'] + ' order by desc limit 1').get_points())[0]['hashrate']
+			hashrate_type = 'hashrate_avg' if cfg.profitestimate_use_average else 'hashrate'
+			hashrate = list(client.query('select ' + hashrate_type + ' from ' + miner['name'] + ' order by desc limit 1').get_points())[0][hashrate_type]
 			client.switch_database('profitestimates')
 			sat_per_day = sat_per_hash * hashrate * 86400
 			fiat_per_day = sat_per_day * price
