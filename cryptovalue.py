@@ -101,7 +101,7 @@ while True:
 	update_value('aeon', 'aeon', get_info_cmc, 150)
 	update_value('zcl', 'zclassic', get_info_cmc, 150)
 	update_value('itns', 'intensecoin', get_info_cmc, 150)
-	update_value('msr', 'MSR', get_info_southxchange, 30)
+	update_value('msr', 'masari', get_info_cmc,150)
 	update_value('btc', 'bitcoin', get_info_cmc, 150)
 	update_value('ltc', 'litecoin', get_info_cmc, 150)
 	update_value('trtl', 'TRTL', get_info_tradeogre, 30)
