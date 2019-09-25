@@ -18,34 +18,43 @@ def get_info_cmc(id):
 	market_cap = data['market_cap_' + cfg.fiat_currency.lower()]
 	return {'price': float(data['price_' + cfg.fiat_currency.lower()]), 'market_cap': float(market_cap if market_cap is not None else 0)}
 
+def get_info_coinlib(id):
+	response = requests.get("https://coinlib.io/api/v1/coin?key=" + cfg.coinlib_api_key + "&pref=" + cfg.fiat_currency + "&symbol=" + id, timeout=3)
+	data = json.loads(response.text)
+	if 'coinlib' not in global_data:
+		global_data['coinlib'] = {}
+	global_data['coinlib'][id] = data
+	market_cap = data['market_cap']
+	return {'price': float(data['price']), 'market_cap': float(market_cap if market_cap is not None else 0)}
+
 def get_info_southxchange(id):
 	response = requests.get("http://www.southxchange.com/api/prices", timeout=3)
 	data = json.loads(response.text)
 	for market in data:
 		if market['Market'] == id + '/BTC':
-			return {'price': float(market['Last']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
+			return {'price': float(market['Last']) * float(global_data['coinlib']['btc']['price']), 'market_cap': 0.0}
 	return {'price': 0.0, 'market_cap': 0.0}
 
 def get_info_tradeogre(id):
 	response = requests.get("https://tradeogre.com/api/v1/ticker/BTC-" + id, timeout=3)
 	data = json.loads(response.text)
-	return {'price': float(data['price']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
+	return {'price': float(data['price']) * float(global_data['coinlib']['btc']['price']), 'market_cap': 0.0}
 
 def get_info_stocksexchange(id):
 	for market in global_data['stocksexchange']:
 		if market['market_name'] == id + '_BTC':
-			return {'price': float(market['last']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
+			return {'price': float(market['last']) * float(global_data['coinlib']['btc']['price']), 'market_cap': 0.0}
 	return {'price': 0.0, 'market_cap': 0.0}
 
 def get_info_crex24(id):
 	response = requests.get("https://api.crex24.com/CryptoExchangeService/BotPublic/ReturnTicker?request=[NamePairs=BTC_" + id + "]", timeout=3)
 	data = json.loads(response.text)['Tickers'][0]
-	return {'price': float(data['Last']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
+	return {'price': float(data['Last']) * float(global_data['coinlib']['btc']['price']), 'market_cap': 0.0}
 
 def get_info_kucoin(id):
 	response = requests.get("https://api.kucoin.com/v1/open/tick?symbol=" + id + "-BTC", timeout=3)
 	data = json.loads(response.text)['data']
-	return {'price': float(data['lastDealPrice']) * get_info_cmc('bitcoin')['price'], 'market_cap': 0.0}
+	return {'price': float(data['lastDealPrice']) * float(global_data['coinlib']['btc']['price']), 'market_cap': 0.0}
 
 def update_stocksexchange():
 	try:
@@ -93,26 +102,26 @@ def update_value(name, price_id, info_function, interval):
 
 while True:
 	update_stocksexchange()
-	update_value('xmr', 'monero', get_info_cmc, 150)
-	update_value('etn', 'electroneum', get_info_cmc, 150)
-	update_value('eth', 'ethereum', get_info_cmc, 150)
-	update_value('etc', 'ethereum-classic', get_info_cmc, 150)
-	update_value('bch', 'bitcoin-cash', get_info_cmc, 150)
-	update_value('aeon', 'aeon', get_info_cmc, 150)
-	update_value('zcl', 'zclassic', get_info_cmc, 150)
-	update_value('itns', 'intensecoin', get_info_cmc, 150)
-	update_value('msr', 'masari', get_info_cmc,150)
-	update_value('btc', 'bitcoin', get_info_cmc, 150)
-	update_value('ltc', 'litecoin', get_info_cmc, 150)
+	update_value('btc', 'btc', get_info_coinlib, 120)
+	update_value('xmr', 'xmr', get_info_coinlib, 300)
+	update_value('etn', 'etn', get_info_coinlib, 900)
+	update_value('eth', 'eth', get_info_coinlib, 600)
+	update_value('etc', 'etc', get_info_coinlib, 600)
+	update_value('bch', 'bch', get_info_coinlib, 900)
+	update_value('aeon', 'aeon', get_info_coinlib, 1200)
+	update_value('zcl', 'zcl', get_info_coinlib, 1200)
+	update_value('itns', 'intensecoin', get_info_cmc, 900)
+	update_value('msr', 'msr', get_info_coinlib, 300)
+	update_value('ltc', 'ltc', get_info_coinlib, 600)
 	update_value('trtl', 'TRTL', get_info_tradeogre, 30)
-	update_value('jnt', 'jibrel-network', get_info_cmc, 150)
-	update_value('krb', 'karbo', get_info_cmc, 150)
+	update_value('jnt', 'jnt', get_info_coinlib, 1800)
+	update_value('krb', 'krb', get_info_coinlib, 1800)
 	update_value('dero', 'DERO', get_info_stocksexchange, 60)
 	update_value('bbs', 'BBS', get_info_crex24, 60)
 	update_value('xao', 'XAO', get_info_tradeogre, 30)
 	update_value('grft', 'GRFT', get_info_tradeogre, 30)
-	update_value('btcp', 'bitcoin-private', get_info_cmc, 150)
-	update_value('storm', 'storm', get_info_cmc, 150)
-	update_value('utnp', 'universa', get_info_cmc, 150)
+	update_value('btcp', 'btcp', get_info_cmc, 900)
+	update_value('storm', 'storm', get_info_coinlib, 1800)
+	update_value('utnp', 'utnp', get_info_coinlib, 1800)
 
 	time.sleep(1)
